@@ -1,59 +1,58 @@
-package com.example.mt.rateapp;
+package com.example.mt.rateapp.fragments;
 
 import android.content.Context;
-import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.design.widget.FloatingActionButton;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.RatingBar;
+import android.support.v7.widget.AppCompatRatingBar;
 
+import com.example.mt.rateapp.R;
 import com.example.mt.rateapp.models.Item;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link AddingFragment.OnFragmentInteractionListener} interface
+ * {@link EditingFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link AddingFragment#newInstance} factory method to
+ * Use the {@link EditingFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class AddingFragment extends Fragment {
+public class EditingFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "image";
+    private static final String ARG_PARAM1 = "param1";
+
+    private Item item;
     private FloatingActionButton fabSave;
     private EditText name;
     private EditText notes;
-    private RatingBar rate;
-
-    // TODO: Rename and change types of parameters
-    private Bitmap image;
+    private AppCompatRatingBar rate;
 
     private OnFragmentInteractionListener mListener;
 
-    public AddingFragment() {
+    public EditingFragment() {
         // Required empty public constructor
     }
 
-    public static AddingFragment newInstance(Bitmap imageBitmap) {
-        AddingFragment fragment = new AddingFragment();
-
+    /**
+     * Use this factory method to create a new instance of
+     * this fragment using the provided parameters.
+     *
+     * @param item Parameter 1.
+     *
+     * @return A new instance of fragment EditingFragment.
+     */
+    // TODO: Rename and change types and number of parameters
+    public static EditingFragment newInstance(Item item) {
+        EditingFragment fragment = new EditingFragment();
         Bundle args = new Bundle();
-        args.putParcelable(ARG_PARAM1,imageBitmap);
+        args.putSerializable(ARG_PARAM1, item);
         fragment.setArguments(args);
         return fragment;
     }
@@ -62,48 +61,45 @@ public class AddingFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            image = getArguments().getParcelable(ARG_PARAM1);
+            item = (Item) getArguments().getSerializable(ARG_PARAM1);
         }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_adding, container, false);
+
         ImageView imageView = view.findViewById(R.id.image_camera);
-        imageView.setImageBitmap(image);
-        fabSave = view.findViewById(R.id.fab_save);
         name = view.findViewById(R.id.editText_name);
         notes = view.findViewById(R.id.editText_notes);
         rate = view.findViewById(R.id.ratingBar);
+        fabSave = view.findViewById(R.id.fab_save);
+
+        imageView.setImageURI(Uri.parse(item.imageUrl));
+        name.setText(item.name);
+        notes.setText(item.notes);
+        rate.setRating(item.score);
+
         fabSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                File photoFile = null;
-                try {
-                    photoFile = createImageFile();
-                    FileOutputStream out = new FileOutputStream(photoFile);
-                    image.compress(Bitmap.CompressFormat.PNG, 100, out);
-                    String mCurrentPhotoPath = photoFile.getAbsolutePath();
-                    String nameTxt = name.getText().toString();
-                    String notesTxt = notes.getText().toString();
-                    int rating = Math.round(rate.getRating());
-                    Item item = new Item(nameTxt, rating, notesTxt, mCurrentPhotoPath, Calendar.getInstance().getTime());
-                    sendItem(item);
+                Item newItem = item.clone();
+                newItem.name = name.getText().toString();
+                newItem.notes = notes.getText().toString();
+                newItem.score = Math.round(rate.getRating());
 
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                onEditButtonPressed(item, newItem);
             }
         });
+
         return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
-    public void sendItem(Item item) {
+    public void onEditButtonPressed(Item item, Item newItem) {
         if (mListener != null) {
-            mListener.onFragmentInteraction(item);
+            mListener.onEditInteraction(item, newItem);
         }
     }
 
@@ -136,22 +132,6 @@ public class AddingFragment extends Fragment {
      */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onFragmentInteraction(Item item);
-    }
-
-    private File createImageFile() throws IOException {
-        // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = getContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
-        );
-
-        // Save a file: path for use with ACTION_VIEW intents
-        //mCurrentPhotoPath = image.getAbsolutePath();
-        return image;
+        void onEditInteraction(Item item, Item newItem);
     }
 }

@@ -3,6 +3,7 @@ package com.example.mt.rateapp;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -54,6 +55,24 @@ public class ItemsOpenHelper extends SQLiteOpenHelper {
         long l = db.insert("Items", null, values);
         db.close();
         return l >= 0;
+    }
+
+    public boolean editItemInDB(Item item, Item newItem){
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("Name", newItem.name);
+        values.put("Notes", newItem.notes);
+        values.put("Rating", newItem.score);
+        String whereClause = "Name = ?";
+        String[] whereArgs = new String[]{item.name};
+        try{
+            long l = db.update("Items", values, whereClause, whereArgs);
+            db.close();
+            return l == 1;
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+        return false;
     }
 
     public void deleteItem(Item item){

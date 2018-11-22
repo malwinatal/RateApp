@@ -1,16 +1,18 @@
-package com.example.mt.rateapp;
+package com.example.mt.rateapp.fragments;
 
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RatingBar;
+import android.support.v7.widget.AppCompatRatingBar;
 import android.widget.TextView;
 
+import com.example.mt.rateapp.R;
 import com.example.mt.rateapp.models.Item;
 
 import java.text.SimpleDateFormat;
@@ -35,6 +37,7 @@ public class ItemDetailFragment extends Fragment {
     private Item mItem;
 
     private OnFragmentInteractionListener mListener;
+
 
     public ItemDetailFragment() {
         // Required empty public constructor
@@ -72,13 +75,16 @@ public class ItemDetailFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_item_detail, container, false);
         CircleImageView img = view.findViewById(R.id.image_show);
         TextView name = view.findViewById(R.id.name_show);
-        RatingBar rate = view.findViewById(R.id.ratingBar_show);
+        AppCompatRatingBar rate = view.findViewById(R.id.ratingBar_show);
         TextView notes = view.findViewById(R.id.notes_show);
         TextView date = view.findViewById(R.id.date_show);
+
         img.setImageURI(Uri.parse(mItem.imageUrl));
         name.setText(mItem.name);
         rate.setRating(mItem.score);
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+        rate.setIsIndicator(false);
+        Log.v(mItem.name, rate.getRating()+"");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm");
         date.setText(simpleDateFormat.format(mItem.date));
         notes.setText(mItem.notes);
 
@@ -89,13 +95,29 @@ public class ItemDetailFragment extends Fragment {
                 removeItemButton(mItem);
             }
         });
+
+        FloatingActionButton fabEd = view.findViewById(R.id.fab_edit);
+        fabEd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                editItemButton(mItem);
+            }
+        });
+
+        Log.v(mItem.name, mItem.score+"");
         return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
     public void removeItemButton(Item item) {
         if (mListener != null) {
-            mListener.removeItem(item);
+            mListener.removeItemInteraction(item);
+        }
+    }
+
+    public void editItemButton(Item item) {
+        if (mListener != null) {
+            mListener.editItemInteraction(item);
         }
     }
 
@@ -128,6 +150,8 @@ public class ItemDetailFragment extends Fragment {
      */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
-        void removeItem(Item item);
+        void removeItemInteraction(Item item);
+        void editItemInteraction(Item item);
     }
+
 }
