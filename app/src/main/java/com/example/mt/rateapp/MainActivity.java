@@ -189,7 +189,10 @@ public class MainActivity extends AppCompatActivity
         ItemsOpenHelper dbHelper = new ItemsOpenHelper(this);
         if(dbHelper.addItemToDB(item)){
             items.add(item);
-            getSupportFragmentManager().beginTransaction().remove(getSupportFragmentManager().findFragmentById(R.id.fragment_container)).commit();
+            getSupportFragmentManager().beginTransaction()
+                    .setCustomAnimations(R.anim.pop_enter, R.anim.pop_exit, R.anim.pop_enter, R.anim.pop_exit)
+                    .remove(getSupportFragmentManager().findFragmentById(R.id.fragment_container))
+                    .commit();
             getSupportFragmentManager().popBackStack();
             hideKeyboard();
             fab.show();
@@ -224,6 +227,7 @@ public class MainActivity extends AppCompatActivity
         else {
             //manager.popBackStack(backStateName, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             FragmentTransaction ft = manager.beginTransaction();
+            ft.setCustomAnimations(0, R.anim.pop_exit, R.anim.pop_enter, R.anim.pop_exit);
             ft.add(R.id.fragment_container, fragment);
             ft.addToBackStack(backStateName);
             ft.commitAllowingStateLoss();
@@ -257,7 +261,10 @@ public class MainActivity extends AppCompatActivity
                         items.remove(item);
                         fragment.notifyDataSetChange();
                         file.delete();
-                        getSupportFragmentManager().beginTransaction().remove(getSupportFragmentManager().findFragmentById(R.id.fragment_container)).commit();
+                        getSupportFragmentManager().beginTransaction()
+                                .setCustomAnimations(R.anim.pop_enter, R.anim.pop_exit, R.anim.pop_enter, R.anim.pop_exit)
+                                .remove(getSupportFragmentManager().findFragmentById(R.id.fragment_container))
+                                .commit();
                         getSupportFragmentManager().popBackStack();
                         //hideKeyboard();
                         fab.show();
@@ -352,7 +359,10 @@ public class MainActivity extends AppCompatActivity
             item.updateItem(newItem);
             fragment.notifyDataSetChange();
             vpFragment.notifyDataSetChange();
-            getSupportFragmentManager().beginTransaction().remove(getSupportFragmentManager().findFragmentById(R.id.fragment_container)).commit();
+            getSupportFragmentManager().beginTransaction()
+                    .setCustomAnimations(R.anim.pop_enter, R.anim.pop_exit, R.anim.pop_enter, R.anim.pop_exit)
+                    .remove(getSupportFragmentManager().findFragmentById(R.id.fragment_container))
+                    .commit();
             getSupportFragmentManager().popBackStack();
             hideKeyboard();
         } else {

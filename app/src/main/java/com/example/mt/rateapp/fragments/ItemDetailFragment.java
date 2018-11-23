@@ -37,6 +37,7 @@ public class ItemDetailFragment extends Fragment {
     private Item mItem;
 
     private OnFragmentInteractionListener mListener;
+    AppCompatRatingBar rate;
 
 
     public ItemDetailFragment() {
@@ -75,7 +76,7 @@ public class ItemDetailFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_item_detail, container, false);
         CircleImageView img = view.findViewById(R.id.image_show);
         TextView name = view.findViewById(R.id.name_show);
-        AppCompatRatingBar rate = view.findViewById(R.id.ratingBar_show);
+        rate = view.findViewById(R.id.ratingBar_show);
         TextView notes = view.findViewById(R.id.notes_show);
         TextView date = view.findViewById(R.id.date_show);
 
@@ -83,7 +84,6 @@ public class ItemDetailFragment extends Fragment {
         name.setText(mItem.name);
         rate.setRating(mItem.score);
         rate.setIsIndicator(false);
-        Log.v(mItem.name, rate.getRating()+"");
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm");
         date.setText(simpleDateFormat.format(mItem.date));
         notes.setText(mItem.notes);
@@ -104,8 +104,13 @@ public class ItemDetailFragment extends Fragment {
             }
         });
 
-        Log.v(mItem.name, mItem.score+"");
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        rate.setRating(mItem.score);
     }
 
     // TODO: Rename method, update argument and hook method into UI event
