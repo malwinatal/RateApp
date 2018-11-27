@@ -20,6 +20,7 @@ tools:context=".fragments.ItemDetailFragment">
             android:id="@+id/image_show"
             android:layout_width="match_parent"
             android:layout_height="274dp"
+            android:padding="16dp"
             android:src="@drawable/ic_menu_camera"
             app:civ_border_color="#FF000000"
             app:civ_border_width="1dp" />

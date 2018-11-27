@@ -4,9 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginStart="16dp"
+    android:layout_marginEnd="16dp"
     android:orientation="horizontal"
-    android:paddingBottom="8dp"
-    android:paddingTop="8dp">
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp">
 
     <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/item_image"
@@ -45,15 +47,14 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_alignLeft="@+id/star"
-            android:layout_alignRight="@+id/star"
             android:layout_alignTop="@+id/star"
+            android:layout_alignRight="@+id/star"
             android:layout_alignBottom="@+id/star"
             android:gravity="center"
-            android:textAppearance="?attr/textAppearanceListItem"
-            android:text="0"/>
+            android:text="0"
+            android:textAppearance="?attr/textAppearanceListItem" />
 
     </RelativeLayout>
-
 
 
 </LinearLayout>

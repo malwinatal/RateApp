@@ -35,6 +35,8 @@ import com.example.mt.rateapp.fragments.ItemFragment;
 import com.example.mt.rateapp.fragments.ViewPagerFragment;
 import com.example.mt.rateapp.models.Item;
 
+import com.googlecode.tesseract.android.TessBaseAPI;
+
 import java.io.File;
 import java.util.List;
 
@@ -43,14 +45,18 @@ public class MainActivity extends AppCompatActivity
         AddingFragment.OnFragmentInteractionListener, ItemDetailFragment.OnFragmentInteractionListener, EditingFragment.OnFragmentInteractionListener {
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
+    static final int ANIM_DURATION_NORMAL = 400;
+    static final int ANIM_DURATION_SHORT = 0;
+
 
     private FloatingActionButton fab;
     List<Item> items;
     ItemFragment fragment;
     ViewPagerFragment vpFragment;
-    int toolbarHeight, mAnimDuration = 400/* milliseconds */;
+    int toolbarHeight;
     Toolbar toolbar;
     ValueAnimator mVaActionBar;
+    private TessBaseAPI tessBaseApi;
 
 
     @Override
@@ -98,7 +104,7 @@ public class MainActivity extends AppCompatActivity
             super.onBackPressed();
             if (getSupportFragmentManager().getBackStackEntryCount() == 0){
                 fab.show();
-                showActionBar();
+                showActionBar(ANIM_DURATION_NORMAL);
             }
         }
     }
@@ -155,7 +161,7 @@ public class MainActivity extends AppCompatActivity
         vpFragment = ViewPagerFragment.newInstance(items.indexOf(item), items);
         addFragmentFromBottom(vpFragment);
         fab.hide();
-        hideActionBar();
+        hideActionBar(ANIM_DURATION_NORMAL);
     }
 
 
@@ -177,10 +183,16 @@ public class MainActivity extends AppCompatActivity
 //                        .setAction("Action", null).show();
             //mImageView.setImageBitmap(imageBitmap);
 
+
+
+
+
+
+
+            hideActionBar(ANIM_DURATION_SHORT);
             AddingFragment fragment = AddingFragment.newInstance(imageBitmap);
             addFragmentFrom(fragment);
             fab.hide();
-            getSupportActionBar().hide();
         }
     }
 
@@ -195,8 +207,8 @@ public class MainActivity extends AppCompatActivity
                     .commit();
             getSupportFragmentManager().popBackStack();
             hideKeyboard();
+            showActionBar(ANIM_DURATION_NORMAL);
             fab.show();
-            showActionBar();
         } else {
             Toast.makeText(this, "Use different name", Toast.LENGTH_SHORT).show();
         }
@@ -268,7 +280,7 @@ public class MainActivity extends AppCompatActivity
                         getSupportFragmentManager().popBackStack();
                         //hideKeyboard();
                         fab.show();
-                        showActionBar();
+                        showActionBar(ANIM_DURATION_NORMAL);
                     }})
                 .setNegativeButton(android.R.string.no, null).show();
 
@@ -280,7 +292,7 @@ public class MainActivity extends AppCompatActivity
         addFragmentFromBottom(fragment);
     }
 
-    void hideActionBar() {
+    void hideActionBar(int mAnimDuration) {
         // initialize `toolbarHeight`
         if (toolbarHeight == 0) {
             toolbarHeight = toolbar.getHeight();
@@ -318,7 +330,7 @@ public class MainActivity extends AppCompatActivity
         mVaActionBar.start();
     }
 
-    void showActionBar() {
+    void showActionBar(int mAnimDuration) {
         if (mVaActionBar != null && mVaActionBar.isRunning()) {
             // we are already animating a transition - block here
             return;
