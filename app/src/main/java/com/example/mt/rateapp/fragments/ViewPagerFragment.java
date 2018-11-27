@@ -65,9 +65,11 @@ public class ViewPagerFragment extends Fragment {
         return view;
     }
 
-    public void notifyDataSetChange(){
-        mPagerAdapter.notifyDataSetChanged();
-        Log.v("items", items.toString());
+    public void notifyDataSetChange(int index){
+        //mPagerAdapter.notifyDataSetChanged();
+        mPager.setAdapter(mPagerAdapter);
+        mPager.setCurrentItem(index);
+//        Log.v("items", items.toString());
     }
 
     private class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter {

@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.example.mt.rateapp.models.Item;
+import com.example.mt.rateapp.models.SortingTypes;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -83,7 +84,7 @@ public class ItemsOpenHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public List<Item> readItemsFromDB(){
+    public List<Item> readItemsFromDB(SortingTypes type){
         SQLiteDatabase db = getReadableDatabase();
         String[] projection = {
                 "Name",
@@ -94,7 +95,19 @@ public class ItemsOpenHelper extends SQLiteOpenHelper {
         };
 
         // How you want the results sorted in the resulting Cursor
-        String sortOrder = "CreationDate ASC";
+        String sortOrder;
+
+        switch (type) {
+            case NAME: sortOrder = "Name ASC";
+            break;
+            case SCORE: sortOrder = "Rating DESC";
+            break;
+            case NEWEST: sortOrder = "CreationDate DESC";
+            break;
+            case OLDEST: sortOrder = "CreationDate ASC";
+            break;
+            default: sortOrder = "CreationDate ASC";
+        }
 
         String selection = null;
         String[] selectionArgs = null;

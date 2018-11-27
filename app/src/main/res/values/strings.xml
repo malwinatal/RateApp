@@ -6,6 +6,11 @@
     <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
+    <string name="action_sort">Sort by</string>
+    <string name="action_sort_name">Sort By Name</string>
+    <string name="action_sort_score">Sort By Score</string>
+    <string name="action_sort_new">Sort By Newest</string>
+    <string name="action_sort_old">Sort By Oldest</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

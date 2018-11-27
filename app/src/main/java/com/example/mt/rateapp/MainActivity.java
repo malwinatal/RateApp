@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.constraint.Group;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -35,6 +36,7 @@ import com.example.mt.rateapp.fragments.ItemFragment;
 import com.example.mt.rateapp.fragments.ViewPagerFragment;
 import com.example.mt.rateapp.models.Item;
 
+import com.example.mt.rateapp.models.SortingTypes;
 import com.googlecode.tesseract.android.TessBaseAPI;
 
 import java.io.File;
@@ -57,6 +59,9 @@ public class MainActivity extends AppCompatActivity
     Toolbar toolbar;
     ValueAnimator mVaActionBar;
     private TessBaseAPI tessBaseApi;
+    ItemsOpenHelper dbHelper;
+    Menu menu;
+    SortingTypes sortingType = SortingTypes.OLDEST;
 
 
     @Override
@@ -67,8 +72,8 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
         
 
-        ItemsOpenHelper dbHelper = new ItemsOpenHelper(this);
-        items = dbHelper.readItemsFromDB();
+        dbHelper = new ItemsOpenHelper(this);
+        items = dbHelper.readItemsFromDB(sortingType);
 
         //items.add(new Item("Test",  1, "djijsidsfjsdifj", "other", Calendar.getInstance().getTime()));
 
@@ -112,6 +117,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
+        this.menu = menu;
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
@@ -122,9 +128,32 @@ public class MainActivity extends AppCompatActivity
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_sort) {
+            return true;
+        } else if (id == R.id.action_sort_name){
+            sortingType = SortingTypes.NAME;
+            updateList();
+            menu.findItem(R.id.action_sort).getSubMenu().setGroupEnabled(item.getGroupId(), true);
+            item.setEnabled(false);
+            return true;
+        } else if (id == R.id.action_sort_score){
+            sortingType = SortingTypes.SCORE;
+            updateList();
+            menu.findItem(R.id.action_sort).getSubMenu().setGroupEnabled(item.getGroupId(), true);
+            item.setEnabled(false);
+            return true;
+        } else if (id == R.id.action_sort_new){
+            sortingType = SortingTypes.NEWEST;
+            updateList();
+            menu.findItem(R.id.action_sort).getSubMenu().setGroupEnabled(item.getGroupId(), true);
+            item.setEnabled(false);
+            return true;
+        } else if (id == R.id.action_sort_old){
+            sortingType = SortingTypes.OLDEST;
+            updateList();
+            menu.findItem(R.id.action_sort).getSubMenu().setGroupEnabled(item.getGroupId(), true);
+            item.setEnabled(false);
             return true;
         }
 
@@ -182,13 +211,6 @@ public class MainActivity extends AppCompatActivity
 //            Snackbar.make(view, "I love malmal", Snackbar.LENGTH_LONG)
 //                        .setAction("Action", null).show();
             //mImageView.setImageBitmap(imageBitmap);
-
-
-
-
-
-
-
             hideActionBar(ANIM_DURATION_SHORT);
             AddingFragment fragment = AddingFragment.newInstance(imageBitmap);
             addFragmentFrom(fragment);
@@ -200,7 +222,7 @@ public class MainActivity extends AppCompatActivity
     public void onSaveButtonInteraction(Item item) {
         ItemsOpenHelper dbHelper = new ItemsOpenHelper(this);
         if(dbHelper.addItemToDB(item)){
-            items.add(item);
+            updateList();
             getSupportFragmentManager().beginTransaction()
                     .setCustomAnimations(R.anim.pop_enter, R.anim.pop_exit, R.anim.pop_enter, R.anim.pop_exit)
                     .remove(getSupportFragmentManager().findFragmentById(R.id.fragment_container))
@@ -369,8 +391,8 @@ public class MainActivity extends AppCompatActivity
         if(dbHelper.editItemInDB(item, newItem)){
             //items.set(items.indexOf(item), newItem);
             item.updateItem(newItem);
-            fragment.notifyDataSetChange();
-            vpFragment.notifyDataSetChange();
+            updateList();
+            vpFragment.notifyDataSetChange(items.indexOf(newItem));
             getSupportFragmentManager().beginTransaction()
                     .setCustomAnimations(R.anim.pop_enter, R.anim.pop_exit, R.anim.pop_enter, R.anim.pop_exit)
                     .remove(getSupportFragmentManager().findFragmentById(R.id.fragment_container))
@@ -380,5 +402,13 @@ public class MainActivity extends AppCompatActivity
         } else {
             Toast.makeText(this, "Use different name", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void updateList(){
+        List<Item> newList;
+        newList = dbHelper.readItemsFromDB(sortingType);
+        items.clear();
+        items.addAll(newList);
+        fragment.notifyDataSetChange();
     }
 }
