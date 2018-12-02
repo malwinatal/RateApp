@@ -1,4 +1,4 @@
-package com.example.mt.rateapp;
+package com.example.mt.rateapp.activities;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -8,14 +8,15 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.constraint.Group;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -29,17 +30,23 @@ import android.view.MenuItem;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
+import com.example.mt.rateapp.ItemsOpenHelper;
+import com.example.mt.rateapp.R;
 import com.example.mt.rateapp.fragments.AddingFragment;
 import com.example.mt.rateapp.fragments.EditingFragment;
 import com.example.mt.rateapp.fragments.ItemDetailFragment;
 import com.example.mt.rateapp.fragments.ItemFragment;
 import com.example.mt.rateapp.fragments.ViewPagerFragment;
+import com.example.mt.rateapp.models.Category;
 import com.example.mt.rateapp.models.Item;
 
 import com.example.mt.rateapp.models.SortingTypes;
 import com.googlecode.tesseract.android.TessBaseAPI;
+import com.maltaisn.icondialog.Icon;
+import com.maltaisn.icondialog.IconHelper;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
@@ -47,26 +54,32 @@ public class MainActivity extends AppCompatActivity
         AddingFragment.OnFragmentInteractionListener, ItemDetailFragment.OnFragmentInteractionListener, EditingFragment.OnFragmentInteractionListener {
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
+    static final int REQUEST_CATEGORY_LIST = 2;
+
     static final int ANIM_DURATION_NORMAL = 400;
     static final int ANIM_DURATION_SHORT = 0;
 
 
     private FloatingActionButton fab;
-    List<Item> items;
-    ItemFragment fragment;
-    ViewPagerFragment vpFragment;
-    int toolbarHeight;
-    Toolbar toolbar;
-    ValueAnimator mVaActionBar;
+    private List<Item> items;
+    private ItemFragment fragment;
+    private ViewPagerFragment vpFragment;
+    private int toolbarHeight;
+    private Toolbar toolbar;
+    private ValueAnimator mVaActionBar;
     private TessBaseAPI tessBaseApi;
-    ItemsOpenHelper dbHelper;
-    Menu menu;
-    SortingTypes sortingType = SortingTypes.OLDEST;
+    private ItemsOpenHelper dbHelper;
+    private Menu menu;
+    private SortingTypes sortingType = SortingTypes.OLDEST;
+    private List<Category> categories;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //deleteDatabase(ItemsOpenHelper.DATABASE_NAME);
+
         setContentView(R.layout.activity_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -74,6 +87,9 @@ public class MainActivity extends AppCompatActivity
 
         dbHelper = new ItemsOpenHelper(this);
         items = dbHelper.readItemsFromDB(sortingType);
+
+        categories = dbHelper.readCategoriesFromDB();
+        Log.v("all_cats", categories.toString());
 
         //items.add(new Item("Test",  1, "djijsidsfjsdifj", "other", Calendar.getInstance().getTime()));
 
@@ -95,6 +111,7 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        loadDrawer();
 
         fragment = ItemFragment.newInstance(items);
         getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, fragment, ItemFragment.class.getName()).commit();
@@ -166,19 +183,18 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-//        if (id == R.id.nav_camera) {
-//            // Handle the camera action
-//        } else if (id == R.id.nav_gallery) {
-//
-//        } else if (id == R.id.nav_slideshow) {
-//
-//        } else if (id == R.id.nav_manage) {
-//
-//        } else if (id == R.id.nav_share) {
-//
-//        } else if (id == R.id.nav_send) {
-//
-//        }
+        if (id == R.id.menu_settings) {
+            Intent intent = new Intent(MainActivity.this,SettingsActivity.class);
+            startActivity(intent);
+        } else if (id == R.id.menu_manage_categories) {
+            Intent intent = new Intent(MainActivity.this,ManageCategoriesActivity.class);
+            intent.putExtra("Categories", (Serializable) categories);
+            startActivityForResult(intent,REQUEST_CATEGORY_LIST);
+        } else for (Category c:categories)
+            if (id == c.id){
+                item.setChecked(true);
+                // TODO add filtering of items for chosen category
+            }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -215,6 +231,11 @@ public class MainActivity extends AppCompatActivity
             AddingFragment fragment = AddingFragment.newInstance(imageBitmap);
             addFragmentFrom(fragment);
             fab.hide();
+        } else if (requestCode == REQUEST_CATEGORY_LIST && resultCode == RESULT_OK) {
+            categories = (List<Category>) data.getSerializableExtra("Categories");
+            Log.v("On_activity_result", resultCode+"");
+            Log.v("activities",categories.toString());
+            loadDrawer();
         }
     }
 
@@ -410,5 +431,26 @@ public class MainActivity extends AppCompatActivity
         items.clear();
         items.addAll(newList);
         fragment.notifyDataSetChange();
+    }
+
+    private void loadDrawer() {
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        final Menu menu = navigationView.getMenu().findItem(R.id.menu_categories_list).getSubMenu();
+        menu.clear();
+        if (categories.size() == 0) {
+            menu.add(R.id.menu_categories_group_list, R.id.no_categories, 0, R.string.menu__no_categories);
+        } else {
+            final IconHelper iconHelper = IconHelper.getInstance(this);
+            iconHelper.addLoadCallback(new IconHelper.LoadCallback() {
+                @Override
+                public void onDataLoaded() {
+                    for (Category c : categories) {
+                        MenuItem menuItem = menu.add(R.id.menu_categories_group_list, c.id, c.id, c.name).setCheckable(true);
+                        Drawable drawable = iconHelper.getIcon(c.iconId).getDrawable(MainActivity.this);
+                        menuItem.setIcon(drawable);
+                    }
+                }
+            });
+        }
     }
 }

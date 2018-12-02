@@ -5,7 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/white"
-    tools:context=".fragments.AddingFragment">
+    tools:context=".fragments.AddingFragment"
+    android:clickable="true"
+    android:focusable="true">
 
     <!-- TODO: Update blank fragment layout -->
     <ScrollView
@@ -37,7 +39,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:paddingLeft="16dp"
-                    android:text="Name" />
+                    android:text="@string/name" />
 
                 <EditText
                     android:id="@+id/editText_name"
@@ -46,8 +48,8 @@
                     android:layout_marginRight="16dp"
                     android:layout_weight="1"
                     android:ems="10"
-                    android:hint="Name"
-                    android:inputType="textPersonName" />
+                    android:hint="@string/new_name"
+                    android:inputType="textCapWords|textPersonName" />
 
             </LinearLayout>
 
@@ -72,16 +74,17 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:paddingLeft="16dp"
-                    android:text="Notes" />
+                    android:text="@string/notes" />
 
                 <EditText
                     android:id="@+id/editText_notes"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginRight="16dp"
+                    android:hint="@string/new_notes"
                     android:layout_weight="1"
                     android:ems="10"
-                    android:inputType="textMultiLine" />
+                    android:inputType="textCapSentences|textMultiLine" />
 
             </LinearLayout>
 

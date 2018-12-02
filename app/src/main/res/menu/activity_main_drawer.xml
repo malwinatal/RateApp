@@ -3,6 +3,30 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
+    <item android:title="@string/menu_categories"
+        android:id="@+id/menu_categories_list">
+        <menu>
+            <group
+                android:id="@+id/menu_categories_group_list"
+                android:checkableBehavior="single">
+                <item
+                    android:id="@+id/no_categories"
+                    android:icon="@drawable/ic_menu_manage"
+                    android:title="@string/menu__no_categories" />
+
+            </group>
+        </menu>
+    </item>
+
+    <item
+        android:title="@string/menu_manage_categories"
+        android:id="@+id/menu_manage_categories"
+        android:icon="@drawable/ic_create_new_folder"/>
+    <item
+        android:title="@string/menu_settings"
+        android:id="@+id/menu_settings"
+        android:icon="@drawable/ic_settings"/>
+
     <!--<group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_camera"
