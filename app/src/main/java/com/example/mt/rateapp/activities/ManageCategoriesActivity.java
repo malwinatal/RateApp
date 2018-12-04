@@ -30,9 +30,16 @@ import java.util.List;
 
 public class ManageCategoriesActivity extends AppCompatActivity implements IconDialog.Callback, MyCategoryRecyclerViewAdapter.OnCategoryListInteractionListener {
 
+    private final static String TITLE_NEW = "New category name";
+    private final static String TITLE_EDIT = "Edit category name";
+    private final static String ICON_NEW = "New category icon";
+    private final static String ICON_EDIT = "Edit category icon";
+
     public String name;
     List<Category> categories;
     MyCategoryRecyclerViewAdapter adapter;
+    private boolean isNew = true;
+    private Category categoryToEdit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +52,8 @@ public class ManageCategoriesActivity extends AppCompatActivity implements IconD
         fabAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                askName();
+                isNew = true;
+                askName("");
             }
         });
 
@@ -55,13 +63,18 @@ public class ManageCategoriesActivity extends AppCompatActivity implements IconD
         recyclerView.setAdapter(adapter);
     }
 
-    private void askName(){
+    private void askName(String categoryName){
         final View view = getLayoutInflater().inflate(R.layout.dialog_new_category, null);
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(ManageCategoriesActivity.this);
-        alertDialog.setTitle("New category name");
+        if(isNew)
+            alertDialog.setTitle(TITLE_NEW);
+        else
+            alertDialog.setTitle(TITLE_EDIT);
         //alertDialog.setMessage("Insert name");
 
         final EditText input = view.findViewById(R.id.dialog_category_name);
+
+        input.setText(categoryName);
 
         alertDialog.setView(view);
         alertDialog.setPositiveButton("Next",
@@ -84,25 +97,41 @@ public class ManageCategoriesActivity extends AppCompatActivity implements IconD
 
     private void askIcon(){
         IconDialog iconDialog = new IconDialog();
-        iconDialog.setTitle(IconDialog.VISIBILITY_ALWAYS,"New category icon");
+        if(isNew)
+            iconDialog.setTitle(IconDialog.VISIBILITY_ALWAYS,ICON_NEW);
+        else {
+            iconDialog.setSelectedIcons(categoryToEdit.iconId);
+            iconDialog.setTitle(IconDialog.VISIBILITY_ALWAYS, ICON_EDIT);
+        }
         iconDialog.show(getSupportFragmentManager(),"category_icon");
     }
 
     @Override
     public void onIconDialogIconsSelected(Icon[] icons) {
         if (icons.length == 1){
-            Category category = new Category(name, icons[0].getId());
             ItemsOpenHelper dbHelper = new ItemsOpenHelper(this);
-            if(dbHelper.addCategoryToDB(category)){
-                categories.add(category);
-                adapter.notifyDataSetChanged();
+            if (isNew) {
+                Category category = new Category(name, icons[0].getId());
+                if (dbHelper.addCategoryToDB(category)) {
+                    categories.add(category);
+                    adapter.notifyDataSetChanged();
+                }
+            } else {
+                Category newCategory = new Category(categoryToEdit.id, name, icons[0].getId());
+                if (dbHelper.editCategoryInDB(newCategory)){
+                    categoryToEdit.name = name;
+                    categoryToEdit.iconId = icons[0].getId();
+                    adapter.notifyDataSetChanged();
+                }
             }
         }
     }
 
     @Override
     public void onCategoryEditButtonInteraction(Category category) {
-
+        isNew = false;
+        categoryToEdit = category;
+        askName(category.name);
     }
 
     @Override

@@ -197,4 +197,20 @@ public class ItemsOpenHelper extends SQLiteOpenHelper {
         }
         return categories;
     }
+
+    public boolean editCategoryInDB(Category newCategory){
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("Name", newCategory.name);
+        values.put("IconId", newCategory.iconId);
+        String whereClause = "Id = " + newCategory.id;
+        try{
+            long l = db.update("Categories", values, whereClause, null);
+            db.close();
+            return l == 1;
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+        return false;
+    }
 }
