@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.support.v7.widget.AppCompatRatingBar;
 
 import com.example.mt.rateapp.R;
+import com.example.mt.rateapp.models.Category;
 import com.example.mt.rateapp.models.Item;
 
 import java.io.File;
@@ -36,6 +37,7 @@ public class AddingFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "image";
+    private static final String ARG_PARAM2 = "category";
     private FloatingActionButton fabSave;
     private EditText name;
     private EditText notes;
@@ -43,6 +45,7 @@ public class AddingFragment extends Fragment {
 
     // TODO: Rename and change types of parameters
     private Bitmap image;
+    private Category recentCategory;
 
     private OnFragmentInteractionListener mListener;
 
@@ -50,11 +53,12 @@ public class AddingFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static AddingFragment newInstance(Bitmap imageBitmap) {
+    public static AddingFragment newInstance(Bitmap imageBitmap, Category recentCategory) {
         AddingFragment fragment = new AddingFragment();
 
         Bundle args = new Bundle();
         args.putParcelable(ARG_PARAM1,imageBitmap);
+        args.putSerializable(ARG_PARAM2,recentCategory);
         fragment.setArguments(args);
         return fragment;
     }
@@ -64,6 +68,7 @@ public class AddingFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             image = getArguments().getParcelable(ARG_PARAM1);
+            recentCategory = (Category) getArguments().getSerializable(ARG_PARAM2);
         }
     }
 
@@ -90,7 +95,7 @@ public class AddingFragment extends Fragment {
                     String nameTxt = name.getText().toString();
                     String notesTxt = notes.getText().toString();
                     int rating = Math.round(rate.getRating());
-                    Item item = new Item(nameTxt, rating, notesTxt, mCurrentPhotoPath, Calendar.getInstance().getTime());
+                    Item item = new Item(recentCategory, nameTxt, rating, notesTxt, mCurrentPhotoPath, Calendar.getInstance().getTime());
                     sendItem(item);
 
                 } catch (IOException e) {

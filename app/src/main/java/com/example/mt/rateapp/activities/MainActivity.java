@@ -47,6 +47,7 @@ import com.maltaisn.icondialog.IconHelper;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
@@ -72,6 +73,7 @@ public class MainActivity extends AppCompatActivity
     private Menu menu;
     private SortingTypes sortingType = SortingTypes.OLDEST;
     private List<Category> categories;
+    private Category recentCategory;
 
 
     @Override
@@ -83,12 +85,14 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        
-
         dbHelper = new ItemsOpenHelper(this);
-        items = dbHelper.readItemsFromDB(sortingType);
-
         categories = dbHelper.readCategoriesFromDB();
+        if(!categories.isEmpty()) {
+            recentCategory = categories.get(0);
+            items = dbHelper.readItemsFromDB(sortingType, recentCategory);
+        } else
+            items = new ArrayList<>();
+
         Log.v("all_cats", categories.toString());
 
         //items.add(new Item("Test",  1, "djijsidsfjsdifj", "other", Calendar.getInstance().getTime()));
@@ -193,7 +197,8 @@ public class MainActivity extends AppCompatActivity
         } else for (Category c:categories)
             if (id == c.id){
                 item.setChecked(true);
-                // TODO add filtering of items for chosen category
+                recentCategory = c;
+                updateList();
             }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -228,7 +233,7 @@ public class MainActivity extends AppCompatActivity
 //                        .setAction("Action", null).show();
             //mImageView.setImageBitmap(imageBitmap);
             hideActionBar(ANIM_DURATION_SHORT);
-            AddingFragment fragment = AddingFragment.newInstance(imageBitmap);
+            AddingFragment fragment = AddingFragment.newInstance(imageBitmap, recentCategory);
             addFragmentFrom(fragment);
             fab.hide();
         } else if (requestCode == REQUEST_CATEGORY_LIST && resultCode == RESULT_OK) {
@@ -427,7 +432,7 @@ public class MainActivity extends AppCompatActivity
 
     private void updateList(){
         List<Item> newList;
-        newList = dbHelper.readItemsFromDB(sortingType);
+        newList = dbHelper.readItemsFromDB(sortingType, recentCategory);
         items.clear();
         items.addAll(newList);
         fragment.notifyDataSetChange();

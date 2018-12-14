@@ -21,11 +21,13 @@ public class ItemsOpenHelper extends SQLiteOpenHelper {
     public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "ItemsStorage.db";
     public static final String ITEMS_TABLE_CREATE ="CREATE TABLE IF NOT EXISTS Items (\n"+
+            "Category VARCHAR NOT NULL, \n"+
             "Name VARCHAR PRIMARY KEY,\n"+
             "Notes VARCHAR,\n"+
             "Rating INTEGER NOT NULL,\n"+
             "CreationDate LONG NOT NULL,\n"+
-            "ImagePath VARCHAR NOT NULL\n"+
+            "ImagePath VARCHAR NOT NULL,\n"+
+            "FOREIGN KEY(Category) REFERENCES Categories(Id) ON DELETE CASCADE\n"+
             ");";
 
     public static final String CATEGORIES_TABLE_CREATE = "CREATE TABLE IF NOT EXISTS Categories (\n"+
@@ -58,6 +60,7 @@ public class ItemsOpenHelper extends SQLiteOpenHelper {
     public boolean addItemToDB(Item item){
         SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
+        values.put("Category", item.category.id);
         values.put("Name", item.name);
         values.put("Notes", item.notes);
         values.put("Rating", item.score);
@@ -94,9 +97,10 @@ public class ItemsOpenHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public List<Item> readItemsFromDB(SortingTypes type){
+    public List<Item> readItemsFromDB(SortingTypes type, Category category){
         SQLiteDatabase db = getReadableDatabase();
         String[] projection = {
+                "Category",
                 "Name",
                 "Notes",
                 "Rating",
@@ -119,14 +123,13 @@ public class ItemsOpenHelper extends SQLiteOpenHelper {
             default: sortOrder = "CreationDate ASC";
         }
 
-        String selection = null;
-        String[] selectionArgs = null;
+        String selection = "Category = " + category.id;
 
         Cursor cursor = db.query(
                 "Items",   // The table to query
                 projection,             // The array of columns to return (pass null to get all)
                 selection,              // The columns for the WHERE clause
-                selectionArgs,          // The values for the WHERE clause
+                null,          // The values for the WHERE clause
                 null,                   // don't group the rows
                 null,                   // don't filter by row groups
                 sortOrder               // The sort order
@@ -136,7 +139,8 @@ public class ItemsOpenHelper extends SQLiteOpenHelper {
         while (cursor.moveToNext()){
             Calendar c = Calendar.getInstance();
             c.setTimeInMillis(cursor.getLong(cursor.getColumnIndex("CreationDate")));
-            Item i = new Item(cursor.getString(cursor.getColumnIndex("Name")),
+            Item i = new Item(category,
+                    cursor.getString(cursor.getColumnIndex("Name")),
                     cursor.getInt(cursor.getColumnIndex("Rating")),
                     cursor.getString(cursor.getColumnIndex("Notes")),
                     cursor.getString(cursor.getColumnIndex("ImagePath")),

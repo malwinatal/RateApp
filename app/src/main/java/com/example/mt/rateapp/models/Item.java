@@ -2,6 +2,7 @@ package com.example.mt.rateapp.models;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Objects;
 
 public class Item implements Serializable {
@@ -10,8 +11,10 @@ public class Item implements Serializable {
     public String notes;
     public String imageUrl;
     public Date date;
+    public Category category;
 
-    public Item(String name, int score, String notes, String imageUrl, Date date) {
+    public Item(Category category, String name, int score, String notes, String imageUrl, Date date) {
+        this.category = category;
         this.name = name;
         this.score = score;
         this.notes = notes;
@@ -25,6 +28,7 @@ public class Item implements Serializable {
         if (o == null || getClass() != o.getClass()) return false;
         Item item = (Item) o;
         return score == item.score &&
+                Objects.equals(category, item.category) &&
                 Objects.equals(name, item.name) &&
                 Objects.equals(notes, item.notes) &&
                 Objects.equals(imageUrl, item.imageUrl) &&
@@ -34,7 +38,8 @@ public class Item implements Serializable {
     @Override
     public int hashCode() {
 
-        return Objects.hash(name, score, notes, imageUrl, date);
+        return Objects.hash(category, name, score, notes, imageUrl, date);
+
     }
 
     @Override
@@ -46,10 +51,11 @@ public class Item implements Serializable {
     }
 
     public Item clone(){
-        return new Item(name, score, notes, imageUrl, date);
+        return new Item(category, name, score, notes, imageUrl, date);
     }
 
     public void updateItem(Item item) {
+        this.category = item.category;
         this.name = item.name;
         this.score = item.score;
         this.notes = item.notes;
