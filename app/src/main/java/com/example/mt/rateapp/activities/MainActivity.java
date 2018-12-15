@@ -249,6 +249,7 @@ public class MainActivity extends AppCompatActivity
         ItemsOpenHelper dbHelper = new ItemsOpenHelper(this);
         if(dbHelper.addItemToDB(item)){
             updateList();
+            recentCategory.numberOfItems++;
             getSupportFragmentManager().beginTransaction()
                     .setCustomAnimations(R.anim.pop_enter, R.anim.pop_exit, R.anim.pop_enter, R.anim.pop_exit)
                     .remove(getSupportFragmentManager().findFragmentById(R.id.fragment_container))
@@ -319,6 +320,7 @@ public class MainActivity extends AppCompatActivity
                         File file = new File(item.imageUrl);
                         dbHelper.deleteItem(item);
                         items.remove(item);
+                        recentCategory.numberOfItems--;
                         fragment.notifyDataSetChange();
                         file.delete();
                         getSupportFragmentManager().beginTransaction()

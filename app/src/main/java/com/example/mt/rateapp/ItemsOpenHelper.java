@@ -21,7 +21,7 @@ public class ItemsOpenHelper extends SQLiteOpenHelper {
     public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "ItemsStorage.db";
     public static final String ITEMS_TABLE_CREATE ="CREATE TABLE IF NOT EXISTS Items (\n"+
-            "Category VARCHAR NOT NULL, \n"+
+            "Category INTEGER NOT NULL, \n"+
             "Name VARCHAR PRIMARY KEY,\n"+
             "Notes VARCHAR,\n"+
             "Rating INTEGER NOT NULL,\n"+
@@ -55,6 +55,13 @@ public class ItemsOpenHelper extends SQLiteOpenHelper {
     }
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         onUpgrade(db, oldVersion, newVersion);
+    }
+
+    @Override
+    public void onConfigure(SQLiteDatabase db) {
+        super.onConfigure(db);
+        db.execSQL("PRAGMA foreign_keys = ON;");
+
     }
 
     public boolean addItemToDB(Item item){
@@ -172,8 +179,9 @@ public class ItemsOpenHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getReadableDatabase();
         String[] projection = {
                 "Id",
-                "Name",
-                "IconId"
+                "Categories.Name",
+                "IconId",
+                "COUNT(Items.name) as NrItems"
         };
 
         // How you want the results sorted in the resulting Cursor
@@ -182,12 +190,14 @@ public class ItemsOpenHelper extends SQLiteOpenHelper {
         String selection = null;
         String[] selectionArgs = null;
 
+        String groupBy = "Categories.Id";
+
         Cursor cursor = db.query(
-                "Categories",   // The table to query
+                "Categories LEFT OUTER JOIN Items ON Categories.Id = Items.Category",   // The table to query
                 projection,             // The array of columns to return (pass null to get all)
                 selection,              // The columns for the WHERE clause
                 selectionArgs,          // The values for the WHERE clause
-                null,                   // don't group the rows
+                groupBy,                   // don't group the rows
                 null,                   // don't filter by row groups
                 sortOrder               // The sort order
         );
@@ -195,8 +205,9 @@ public class ItemsOpenHelper extends SQLiteOpenHelper {
         List<Category> categories = new ArrayList<>();
         while (cursor.moveToNext()){
             Category i = new Category(cursor.getInt(cursor.getColumnIndex("Id")),
-                    cursor.getString(cursor.getColumnIndex("Name")),
-                    cursor.getInt(cursor.getColumnIndex("IconId")));
+                    cursor.getString(cursor.getColumnIndex("Categories.Name")),
+                    cursor.getInt(cursor.getColumnIndex("IconId")),
+                    cursor.getInt(cursor.getColumnIndex("NrItems")));
             categories.add(i);
         }
         return categories;

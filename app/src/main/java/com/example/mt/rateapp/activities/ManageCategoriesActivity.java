@@ -34,6 +34,9 @@ public class ManageCategoriesActivity extends AppCompatActivity implements IconD
     private final static String TITLE_EDIT = "Edit category name";
     private final static String ICON_NEW = "New category icon";
     private final static String ICON_EDIT = "Edit category icon";
+    private final static String QUESTION_REMOVE_CATEGORY = "Do you really want to delete this category with all of the items? \n\nNumber of items in this category: ";
+    private final static String TITLE_REMOVE_CATEGORY = "Deleting category";
+
 
     public String name;
     List<Category> categories;
@@ -137,9 +140,9 @@ public class ManageCategoriesActivity extends AppCompatActivity implements IconD
     @Override
     public void onCategoryRemoveButtonInteraction(final Category category) {
         new android.app.AlertDialog.Builder(this)
-                //.setTitle("Deleting")
-                .setMessage("Do you really want to delete this category with all of the items?")
-                //.setIcon(android.R.drawable.ic_dialog_alert)
+                .setTitle(TITLE_REMOVE_CATEGORY)
+                .setMessage(QUESTION_REMOVE_CATEGORY + category.numberOfItems)
+                .setIcon(android.R.drawable.ic_dialog_alert)
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
 
                     public void onClick(DialogInterface dialog, int whichButton) {

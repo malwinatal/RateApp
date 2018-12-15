@@ -49,7 +49,7 @@ public class MyCategoryRecyclerViewAdapter extends RecyclerView.Adapter<MyCatego
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mCategory = mValues.get(position);
         holder.name.setText(holder.mCategory.name);
-        holder.nrItems.setText("" + 0); //TODO
+        holder.nrItems.setText("" + holder.mCategory.numberOfItems);
         Drawable drawable = IconHelper.getInstance(mContext).getIcon(holder.mCategory.iconId).getDrawable(mContext);
         holder.icon.setImageDrawable(drawable);
 

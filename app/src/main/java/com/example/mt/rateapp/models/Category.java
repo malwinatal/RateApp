@@ -7,6 +7,7 @@ public class Category implements Serializable {
     public int id;
     public String name;
     public int iconId;
+    public  int numberOfItems;
 
     public Category(int id, String name, int iconId) {
         this.id = id;
@@ -17,6 +18,13 @@ public class Category implements Serializable {
     public Category(String name, int iconId) {
         this.name = name;
         this.iconId = iconId;
+    }
+
+    public Category(int id, String name, int iconId, int numberOfItems){
+        this.id = id;
+        this.name = name;
+        this.iconId = iconId;
+        this.numberOfItems = numberOfItems;
     }
 
     @Override
