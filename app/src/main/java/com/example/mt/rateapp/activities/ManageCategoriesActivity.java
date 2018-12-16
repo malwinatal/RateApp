@@ -10,6 +10,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Adapter;
 import android.widget.EditText;
@@ -27,6 +28,8 @@ import com.maltaisn.icondialog.IconDialog;
 import java.io.File;
 import java.io.Serializable;
 import java.util.List;
+
+import static com.example.mt.rateapp.activities.MainActivity.REQUEST_CATEGORY_LIST;
 
 public class ManageCategoriesActivity extends AppCompatActivity implements IconDialog.Callback, MyCategoryRecyclerViewAdapter.OnCategoryListInteractionListener {
 
@@ -160,6 +163,7 @@ public class ManageCategoriesActivity extends AppCompatActivity implements IconD
         Intent intent = new Intent();
         intent.putExtra("Categories", (Serializable) categories);
         setResult(RESULT_OK, intent);
+        //finishActivity(REQUEST_CATEGORY_LIST);
         super.onBackPressed();
     }
 }

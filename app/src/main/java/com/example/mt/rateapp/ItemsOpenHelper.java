@@ -179,7 +179,7 @@ public class ItemsOpenHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getReadableDatabase();
         String[] projection = {
                 "Id",
-                "Categories.Name",
+                "Categories.Name as Name",
                 "IconId",
                 "COUNT(Items.name) as NrItems"
         };
@@ -205,7 +205,7 @@ public class ItemsOpenHelper extends SQLiteOpenHelper {
         List<Category> categories = new ArrayList<>();
         while (cursor.moveToNext()){
             Category i = new Category(cursor.getInt(cursor.getColumnIndex("Id")),
-                    cursor.getString(cursor.getColumnIndex("Categories.Name")),
+                    cursor.getString(cursor.getColumnIndex("Name")),
                     cursor.getInt(cursor.getColumnIndex("IconId")),
                     cursor.getInt(cursor.getColumnIndex("NrItems")));
             categories.add(i);

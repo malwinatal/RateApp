@@ -5,8 +5,10 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -59,7 +61,7 @@ public class MainActivity extends AppCompatActivity
 
     static final int ANIM_DURATION_NORMAL = 400;
     static final int ANIM_DURATION_SHORT = 0;
-
+    static final String SHARED_PREFERENCES_CATEGORY = "preferences_key_category";
 
     private FloatingActionButton fab;
     private List<Item> items;
@@ -74,6 +76,8 @@ public class MainActivity extends AppCompatActivity
     private SortingTypes sortingType = SortingTypes.OLDEST;
     private List<Category> categories;
     private Category recentCategory;
+    private SharedPreferences sharedPref;
+
 
 
     @Override
@@ -81,6 +85,8 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
 
         //deleteDatabase(ItemsOpenHelper.DATABASE_NAME);
+        sharedPref = getPreferences(Context.MODE_PRIVATE);
+        int recentCategoryIndex = sharedPref.getInt(SHARED_PREFERENCES_CATEGORY, 0);
 
         setContentView(R.layout.activity_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -88,7 +94,10 @@ public class MainActivity extends AppCompatActivity
         dbHelper = new ItemsOpenHelper(this);
         categories = dbHelper.readCategoriesFromDB();
         if(!categories.isEmpty()) {
-            recentCategory = categories.get(0);
+            if(recentCategoryIndex < categories.size())
+                recentCategory = categories.get(recentCategoryIndex);
+            else
+                recentCategory = categories.get(0);
             items = dbHelper.readItemsFromDB(sortingType, recentCategory);
         } else
             items = new ArrayList<>();
@@ -181,7 +190,6 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
@@ -197,6 +205,9 @@ public class MainActivity extends AppCompatActivity
         } else for (Category c:categories)
             if (id == c.id){
                 item.setChecked(true);
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putInt(SHARED_PREFERENCES_CATEGORY, categories.indexOf(c));
+                editor.commit();
                 recentCategory = c;
                 updateList();
             }
@@ -225,6 +236,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.v("ACTIVITY_RESULT",""+requestCode);
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             Bundle extras = data.getExtras();
             Bitmap imageBitmap = (Bitmap) extras.get("data");
@@ -238,8 +250,8 @@ public class MainActivity extends AppCompatActivity
             fab.hide();
         } else if (requestCode == REQUEST_CATEGORY_LIST && resultCode == RESULT_OK) {
             categories = (List<Category>) data.getSerializableExtra("Categories");
-            Log.v("On_activity_result", resultCode+"");
-            Log.v("activities",categories.toString());
+//            Log.v("On_activity_result", resultCode+"");
+//            Log.v("activities",categories.toString());
             loadDrawer();
         }
     }
@@ -437,27 +449,49 @@ public class MainActivity extends AppCompatActivity
         newList = dbHelper.readItemsFromDB(sortingType, recentCategory);
         items.clear();
         items.addAll(newList);
-        fragment.notifyDataSetChange();
+        if(fragment != null)
+            fragment.notifyDataSetChange();
     }
 
     private void loadDrawer() {
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         final Menu menu = navigationView.getMenu().findItem(R.id.menu_categories_list).getSubMenu();
         menu.clear();
         if (categories.size() == 0) {
             menu.add(R.id.menu_categories_group_list, R.id.no_categories, 0, R.string.menu__no_categories);
         } else {
             final IconHelper iconHelper = IconHelper.getInstance(this);
-            iconHelper.addLoadCallback(new IconHelper.LoadCallback() {
-                @Override
-                public void onDataLoaded() {
-                    for (Category c : categories) {
-                        MenuItem menuItem = menu.add(R.id.menu_categories_group_list, c.id, c.id, c.name).setCheckable(true);
-                        Drawable drawable = iconHelper.getIcon(c.iconId).getDrawable(MainActivity.this);
-                        menuItem.setIcon(drawable);
+            Log.v("DATA_LOADED ", ""+categories.toString());
+            if (iconHelper.isDataLoaded()){
+                for (Category c : categories) {
+                    MenuItem menuItem = menu.add(R.id.menu_categories_group_list, c.id, c.id, c.name).setCheckable(true);
+                    Drawable drawable = iconHelper.getIcon(c.iconId).getDrawable(MainActivity.this);
+                    menuItem.setIcon(drawable);
+                    if (c.equals(recentCategory)) {
+                        //                            menuItem.setChecked(true);
+                        navigationView.setCheckedItem(c.id);
+                        menu.performIdentifierAction(c.id, 0);
                     }
                 }
-            });
+                Log.v("recent_category", "" + recentCategory.id);
+            }
+            else
+                iconHelper.addLoadCallback(new IconHelper.LoadCallback() {
+                    @Override
+                    public void onDataLoaded() {
+                        for (Category c : categories) {
+                            MenuItem menuItem = menu.add(R.id.menu_categories_group_list, c.id, c.id, c.name).setCheckable(true);
+                            Drawable drawable = iconHelper.getIcon(c.iconId).getDrawable(MainActivity.this);
+                            menuItem.setIcon(drawable);
+                            if (c.equals(recentCategory)) {
+    //                            menuItem.setChecked(true);
+                                navigationView.setCheckedItem(c.id);
+                                menu.performIdentifierAction(c.id, 0);
+                                Log.v("recent_cat", "" + recentCategory.id);
+                            }
+                        }
+                    }
+                });
         }
     }
 }

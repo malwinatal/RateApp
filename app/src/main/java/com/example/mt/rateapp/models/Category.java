@@ -1,6 +1,7 @@
 package com.example.mt.rateapp.models;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class Category implements Serializable {
 
@@ -36,5 +37,19 @@ public class Category implements Serializable {
                 '}';
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Category category = (Category) o;
+        return id == category.id &&
+                iconId == category.iconId &&
+                Objects.equals(name, category.name);
+    }
 
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(id, name, iconId);
+    }
 }
