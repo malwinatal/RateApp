@@ -102,10 +102,6 @@ public class MainActivity extends AppCompatActivity
         } else
             items = new ArrayList<>();
 
-        Log.v("all_cats", categories.toString());
-
-        //items.add(new Item("Test",  1, "djijsidsfjsdifj", "other", Calendar.getInstance().getTime()));
-
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -193,15 +189,26 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
+        hideKeyboard();
         int id = item.getItemId();
 
         if (id == R.id.menu_settings) {
             Intent intent = new Intent(MainActivity.this,SettingsActivity.class);
             startActivity(intent);
+            if (getSupportFragmentManager().getBackStackEntryCount() > 0){
+                getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                fab.show();
+                showActionBar(ANIM_DURATION_SHORT);
+            }
         } else if (id == R.id.menu_manage_categories) {
             Intent intent = new Intent(MainActivity.this,ManageCategoriesActivity.class);
             intent.putExtra("Categories", (Serializable) categories);
             startActivityForResult(intent,REQUEST_CATEGORY_LIST);
+            if (getSupportFragmentManager().getBackStackEntryCount() > 0){
+                getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                fab.show();
+                showActionBar(ANIM_DURATION_SHORT);
+            }
         } else for (Category c:categories)
             if (id == c.id){
                 item.setChecked(true);
@@ -210,6 +217,11 @@ public class MainActivity extends AppCompatActivity
                 editor.commit();
                 recentCategory = c;
                 updateList();
+                if (getSupportFragmentManager().getBackStackEntryCount() > 0){
+                    getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                    fab.show();
+                    showActionBar(ANIM_DURATION_NORMAL);
+                }
             }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -345,7 +357,6 @@ public class MainActivity extends AppCompatActivity
                         showActionBar(ANIM_DURATION_NORMAL);
                     }})
                 .setNegativeButton(android.R.string.no, null).show();
-
     }
 
     @Override
@@ -473,7 +484,6 @@ public class MainActivity extends AppCompatActivity
                         menu.performIdentifierAction(c.id, 0);
                     }
                 }
-                Log.v("recent_category", "" + recentCategory.id);
             }
             else
                 iconHelper.addLoadCallback(new IconHelper.LoadCallback() {
@@ -487,7 +497,6 @@ public class MainActivity extends AppCompatActivity
     //                            menuItem.setChecked(true);
                                 navigationView.setCheckedItem(c.id);
                                 menu.performIdentifierAction(c.id, 0);
-                                Log.v("recent_cat", "" + recentCategory.id);
                             }
                         }
                     }
