@@ -12,6 +12,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -20,6 +21,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -30,6 +32,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.mt.rateapp.ItemsOpenHelper;
@@ -83,7 +86,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         //deleteDatabase(ItemsOpenHelper.DATABASE_NAME);
         sharedPref = getPreferences(Context.MODE_PRIVATE);
         int recentCategoryIndex = sharedPref.getInt(SHARED_PREFERENCES_CATEGORY, 0);
@@ -106,7 +108,15 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                dispatchTakePictureIntent();
+                if(!categories.isEmpty())
+                    dispatchTakePictureIntent();
+                else {
+                    Toast toast = Toast.makeText(getApplicationContext(), "Add category. \n\nCannot add an item without any category.", Toast.LENGTH_SHORT);
+                    TextView v = (TextView) toast.getView().findViewById(android.R.id.message);
+                    if (v != null)
+                        v.setGravity(Gravity.CENTER);
+                    toast.show();
+                }
 //                Snackbar.make(view, "Test", Snackbar.LENGTH_LONG)
 //                        .setAction("Action", null).show();
             }

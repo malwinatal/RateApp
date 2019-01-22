@@ -17,6 +17,15 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
+            android:name=".activities.SplashActivity"
+            android:theme="@style/SplashTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".activities.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
@@ -34,7 +43,8 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.mt.rateapp.activities.MainActivity" />
         </activity>
-        <activity android:name=".activities.ManageCategoriesActivity"
+        <activity
+            android:name=".activities.ManageCategoriesActivity"
             android:label="@string/menu_manage_categories"
             android:parentActivityName=".activities.MainActivity">
             <meta-data
