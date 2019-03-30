@@ -9,27 +9,18 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.Adapter;
 import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.Toast;
 
-import com.example.mt.rateapp.ItemsOpenHelper;
+import com.example.mt.rateapp.utils.ItemsOpenHelper;
 import com.example.mt.rateapp.MyCategoryRecyclerViewAdapter;
-import com.example.mt.rateapp.MyItemRecyclerViewAdapter;
 import com.example.mt.rateapp.R;
 import com.example.mt.rateapp.models.Category;
 import com.maltaisn.icondialog.Icon;
 import com.maltaisn.icondialog.IconDialog;
 
-import java.io.File;
 import java.io.Serializable;
 import java.util.List;
-
-import static com.example.mt.rateapp.activities.MainActivity.REQUEST_CATEGORY_LIST;
 
 public class ManageCategoriesActivity extends AppCompatActivity implements IconDialog.Callback, MyCategoryRecyclerViewAdapter.OnCategoryListInteractionListener {
 

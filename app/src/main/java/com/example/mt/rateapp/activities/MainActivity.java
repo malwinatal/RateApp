@@ -10,16 +10,15 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.graphics.drawable.DrawableCompat;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -35,7 +34,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.mt.rateapp.ItemsOpenHelper;
+import com.example.mt.rateapp.utils.ItemsOpenHelper;
 import com.example.mt.rateapp.R;
 import com.example.mt.rateapp.fragments.AddingFragment;
 import com.example.mt.rateapp.fragments.EditingFragment;
@@ -46,8 +45,10 @@ import com.example.mt.rateapp.models.Category;
 import com.example.mt.rateapp.models.Item;
 
 import com.example.mt.rateapp.models.SortingTypes;
+import com.example.mt.rateapp.utils.TutorialHelper;
+import com.github.amlcurran.showcaseview.ShowcaseView;
+import com.github.amlcurran.showcaseview.targets.Target;
 import com.googlecode.tesseract.android.TessBaseAPI;
-import com.maltaisn.icondialog.Icon;
 import com.maltaisn.icondialog.IconHelper;
 
 import java.io.File;
@@ -80,13 +81,16 @@ public class MainActivity extends AppCompatActivity
     private List<Category> categories;
     private Category recentCategory;
     private SharedPreferences sharedPref;
+    private DrawerLayout drawer;
+
+    private boolean isTutorialActive = true;
 
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //deleteDatabase(ItemsOpenHelper.DATABASE_NAME);
+        deleteDatabase(ItemsOpenHelper.DATABASE_NAME);
         sharedPref = getPreferences(Context.MODE_PRIVATE);
         int recentCategoryIndex = sharedPref.getInt(SHARED_PREFERENCES_CATEGORY, 0);
 
@@ -122,11 +126,16 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
+
+        if(isTutorialActive){
+            TutorialHelper.startTutorial(this);
+            isTutorialActive = false;
+        }
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -134,7 +143,9 @@ public class MainActivity extends AppCompatActivity
 
         fragment = ItemFragment.newInstance(items);
         getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, fragment, ItemFragment.class.getName()).commit();
+
     }
+
 
     @Override
     public void onBackPressed() {
@@ -509,6 +520,7 @@ public class MainActivity extends AppCompatActivity
                                 menu.performIdentifierAction(c.id, 0);
                             }
                         }
+
                     }
                 });
         }

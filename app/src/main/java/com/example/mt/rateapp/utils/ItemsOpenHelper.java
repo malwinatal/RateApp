@@ -1,4 +1,4 @@
-package com.example.mt.rateapp;
+package com.example.mt.rateapp.utils;
 
 import android.content.ContentValues;
 import android.content.Context;
